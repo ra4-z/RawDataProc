@@ -1,7 +1,7 @@
 import os
 import cv2
 import json
-
+from tqdm import tqdm
 
 def read_raw_json(gt_dir):
     ''' 
@@ -47,17 +47,18 @@ def read_raw_json(gt_dir):
     return {cam_id: ordered_gt}
 
 
-def video2imgs(video, dir, interval=1, format="jpeg"):
+def video2imgs(video, save_dir, interval=1, format="jpeg"):
     cap = cv2.VideoCapture(video)
     frame_id = 0
     while(cap.isOpened):
+        frame_id += 1
         ret, frame = cap.read()
         if ret == False:
             print(f"{video} is finished at {frame_id}!")
             return
         if frame_id % interval != 0:
             continue
-        save_path = os.path.join(dir, f"{frame_id:05}.{format}")
+        save_path = os.path.join(save_dir, f"{frame_id:05}.{format}")
         cv2.imwrite(save_path, frame)
-        frame_id += 1
+
     print(__name__, " is done!")

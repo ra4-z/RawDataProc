@@ -9,7 +9,8 @@ def toMOT(data,
           save_id=False,
           save_type=False,
           save_direction=False,
-          interval=1):
+          interval=1,
+          compensation=2,):
     '''
         function:
             convert the data to MOT format
@@ -22,6 +23,7 @@ def toMOT(data,
             save_type: whether to save the type of the car
             save_direction: whether to save the direction of the car
             interval: the interval of frame when saving data
+            compensation: the compensation of the frame when saving data based on the requirement of starting from 0 or 1
         return:
             None
     '''
@@ -29,11 +31,11 @@ def toMOT(data,
         os.mkdir(save_dir)
 
     if not save_id:
-        fixed_id = -1
+        fixed_id = 0
 
     for cam in data:
-        print("Processing camera ", cam)
-        cnt = 0
+        print("Processing camera ", cam, "in MOT format")
+        cnt = compensation
         with open(os.path.join(save_dir, f"{cam}.txt"), 'w') as f:
             for frame in tqdm(data[cam]):
                 cnt += 1
@@ -47,7 +49,7 @@ def toMOT(data,
                     if not save_direction:
                         car["reliable"] = 0
                         car["direction"] = [0, 0]
-                    f.write(f"{frame},{car['id']},")
+                    f.write(f"{cnt},{car['id']},")
                     f.write(
                         f"{car['bbox'][0]}, {car['bbox'][1]}, {car['bbox'][2]-car['bbox'][0]}, {car['bbox'][3]-car['bbox'][1]},")
                     f.write(f"{car['type']},")
@@ -62,6 +64,7 @@ def toLABELME(data,
               save_dir=None,
               interval=1,
               pic_format="jpeg",
+              compensation=2,
               ):
     def new_json(shapes=[],
                  imagePath=None,
@@ -97,9 +100,9 @@ def toLABELME(data,
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
-    cnt = 0
+    cnt = compensation
     for cam in data:
-        print("Processing camera ", cam)
+        print("Processing camera ", cam, "in Labelme format")
         if not os.path.exists(os.path.join(save_dir, cam)):
             os.mkdir(os.path.join(save_dir, cam))
 
@@ -114,20 +117,21 @@ def toLABELME(data,
                                   group_id=car['id'],
                                   shape_type="rectangle")
                 frame_json["shapes"].append(shape)
-            with open(os.path.join(save_dir, f"{cam}", f"{cnt:05}.json"), 'w') as f:
+            with open(os.path.join(save_dir, f"{cam}", f"{(cnt):05}.json"), 'w') as f:
                 json.dump(frame_json, f)
 
 
 if __name__ == "__main__":
     from utils import read_raw_json
-    cams = [1, 2, 4, 12, 13, 14, 19, 23, 26, 27,
-            28, 30, 37, 55, 57, 59, 62, 64, 65, 66, 73]
+    cams = [14]
+    # [1, 2, 4, 12, 13, 14, 19, 23, 26, 27,
+    #         28, 30, 37, 55, 57, 59, 62, 64, 65, 66, 73]
     interval = 8
     for cam in cams:
-        gt_dir = f"/data/codes/RawDataProc/data/yk{cam}_output"
+        gt_dir = f"/data/data/sunqiao/results/yk{cam}_output"
         data = read_raw_json(gt_dir)
         toMOT(data, "/data/codes/RawDataProc/data/mot",
               save_id=True, save_direction=False, interval=interval)
 
-        save_dir = "/data/codes/RawDataProc/data/labelme"
-        toLABELME(data, save_dir=save_dir, interval=interval)
+        # save_dir = "/data/codes/RawDataProc/data/labelme"
+        # toLABELME(data, save_dir=save_dir, interval=interval)
