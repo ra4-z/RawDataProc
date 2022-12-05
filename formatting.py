@@ -123,9 +123,8 @@ def toLABELME(data,
 
 if __name__ == "__main__":
     from utils import read_raw_json
-    cams = [14]
-    # [1, 2, 4, 12, 13, 14, 19, 23, 26, 27,
-    #         28, 30, 37, 55, 57, 59, 62, 64, 65, 66, 73]
+    cams = [1, 2, 4, 12, 13, 14, 19, 23, 26, 27,
+            28, 30, 37, 55, 57, 59, 62, 64, 65, 66, 73]
     interval = 8
     for cam in cams:
         gt_dir = f"/data/data/sunqiao/results/yk{cam}_output"
@@ -133,5 +132,5 @@ if __name__ == "__main__":
         toMOT(data, "/data/codes/RawDataProc/data/mot",
               save_id=True, save_direction=False, interval=interval)
 
-        # save_dir = "/data/codes/RawDataProc/data/labelme"
-        # toLABELME(data, save_dir=save_dir, interval=interval)
+        save_dir = "/data/codes/RawDataProc/data/labelme"
+        toLABELME(data, save_dir=save_dir, interval=interval)
